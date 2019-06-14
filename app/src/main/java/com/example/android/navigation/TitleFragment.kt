@@ -2,14 +2,13 @@ package com.example.android.navigation
 
 
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.navigation.ui.NavigationUI
 import com.example.android.navigation.databinding.FragmentTitleBinding
 
 /**
@@ -24,9 +23,9 @@ class TitleFragment : Fragment() {
 
         val binding: FragmentTitleBinding = DataBindingUtil.inflate<FragmentTitleBinding>(inflater, R.layout.fragment_title, container, false)
 
-        binding.playButton.setOnClickListener(
+      /*  binding.playButton.setOnClickListener(
             Navigation.createNavigateOnClickListener(R.id.action_titleFragment_to_gameFragment)
-        )
+        )*/
 
       /*
         //OR:
@@ -39,8 +38,30 @@ class TitleFragment : Fragment() {
             view.findNavController().navigate(R.id.action_titleFragment_to_gameFragment)
         }
 */
+        //OR:
+        binding.playButton.setOnClickListener { view: View ->
+           view.findNavController().navigate(TitleFragmentDirections.actionTitleFragmentToGameFragment())
+        }
+
+        /*
+        * Setting a menu in fragment
+        * */
+        //Telling the android that, there is a menu associated with this title_fragment
+        setHasOptionsMenu(true)
+
         return binding.root
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+
+        inflater?.inflate(R.menu.overflow_menu,menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return NavigationUI.onNavDestinationSelected(item!!, view!!.findNavController())
+                || super.onOptionsItemSelected(item)
     }
 }
 

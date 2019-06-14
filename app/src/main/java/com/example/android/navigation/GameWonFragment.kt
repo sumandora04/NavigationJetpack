@@ -16,13 +16,16 @@
 
 package com.example.android.navigation
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.Toast
+import androidx.core.app.ShareCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import androidx.navigation.findNavController
+import androidx.navigation.ui.NavigationUI
 import com.example.android.navigation.databinding.FragmentGameWonBinding
 
 
@@ -33,10 +36,63 @@ class GameWonFragment : Fragment() {
         val binding: FragmentGameWonBinding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_game_won, container, false)
 
-        binding.nextMatchButton.setOnClickListener(
-                Navigation.createNavigateOnClickListener(R.id.action_gameWonFragment_to_gameFragment2)
-        )
+        /* binding.nextMatchButton.setOnClickListener(
+                 Navigation.createNavigateOnClickListener(R.id.action_gameWonFragment_to_gameFragment2)
+         )*/
+
+        setHasOptionsMenu(true)
+
+        binding.nextMatchButton.setOnClickListener { view: View ->
+            view.findNavController().navigate(GameWonFragmentDirections.actionGameWonFragmentToGameFragment2())
+        }
+
+        //Fetching the arguments:
+        val args = GameWonFragmentArgs.fromBundle(arguments!!)
+
+        Toast.makeText(
+                context,
+                "NumCorrect:${args.numCorrect}," +
+                        "NumTotalQues: ${args.numQuestions}",
+                Toast.LENGTH_LONG
+        ).show()
 
         return binding.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        inflater?.inflate(R.menu.winner_menu, menu)
+
+        //Check if the activity resolves:  i.e; the intent can be handled:
+        if (null==getShareIntent().resolveActivity(activity!!.packageManager)){
+            //Intent cant be handled:
+            // Hide the share icon:
+            menu?.findItem(R.id.share)?.setVisible(false)
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.share -> shareSuccess()
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun getShareIntent(): Intent {
+        val args = GameWonFragmentArgs.fromBundle(arguments!!)
+
+//        val shareIntent: Intent = Intent(Intent.ACTION_SEND) // Intent.ACTION_SEND is useful for sharing.
+//        shareIntent.setType("text/plain").putExtra(Intent.EXTRA_TEXT, getString(R.string.share_success_text, args.numCorrect, args.numQuestions))
+//        return shareIntent
+
+        // Library function for sharing intent
+        return ShareCompat.IntentBuilder.from(activity)
+                .setText(getString(R.string.share_success_text,args.numCorrect,args.numQuestions))
+                .setType("text/plain")
+                .intent
+    }
+
+    private fun shareSuccess() {
+        startActivity(getShareIntent())
+
     }
 }
